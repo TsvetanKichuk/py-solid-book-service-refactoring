@@ -1,10 +1,12 @@
 import json
-import xml.etree.ElementTree as ET
+
+import xml.etree.ElementTree as XmlET
+
 from abc import ABC, abstractmethod
 
 
 class Book:
-    def __init__(self, title: str, content: str):
+    def __init__(self, title: str, content: str) -> None:
         self.title = title
         self.content = content
 
@@ -56,17 +58,22 @@ class JsonSerialize(SerializeStrategy):
 
 class XmlSerialize(SerializeStrategy):
     def serialize(self, book: Book) -> str:
-        root = ET.Element("book")
-        title = ET.SubElement(root, "title")
+        root = XmlET.Element("book")
+        title = XmlET.SubElement(root, "title")
         title.text = book.title
-        content = ET.SubElement(root, "content")
+        content = XmlET.SubElement(root, "content")
         content.text = book.content
-        return ET.tostring(root, encoding="unicode")
+        return XmlET.tostring(root, encoding="unicode")
 
 
 class BookProcessor:
-    def __init__(self, book: Book, display_strategy: DisplayStrategy, print_strategy: PrintStrategy,
-                 serialize_strategy: SerializeStrategy):
+    def __init__(
+            self,
+            book: Book,
+            display_strategy: DisplayStrategy,
+            print_strategy: PrintStrategy,
+            serialize_strategy: SerializeStrategy
+    ) -> None:
         self.book = book
         self.display_strategy = display_strategy
         self.print_strategy = print_strategy
@@ -93,21 +100,41 @@ def main(book: Book, commands: list[tuple[str, str]]) -> None | str:
                 display_strategy = ReverseConsoleDisplay()
             else:
                 display_strategy = ConsoleDisplay()
-            bp = BookProcessor(book, display_strategy, print_strategy, serialize_strategy)
+            bp = BookProcessor(
+                book,
+                display_strategy,
+                print_strategy,
+                serialize_strategy
+            )
+
             bp.display()
+
         elif cmd == "print":
             if method_type == "reverse":
                 print_strategy = ReverseConsolePrint()
             else:
                 print_strategy = ConsolePrint()
-            bp = BookProcessor(book, display_strategy, print_strategy, serialize_strategy)
+            bp = BookProcessor(
+                book,
+                display_strategy,
+                print_strategy,
+                serialize_strategy
+            )
+
             bp.print_book()
+
         elif cmd == "serialize":
             if method_type == "xml":
                 serialize_strategy = XmlSerialize()
             else:
                 serialize_strategy = JsonSerialize()
-            bp = BookProcessor(book, display_strategy, print_strategy, serialize_strategy)
+            bp = BookProcessor(
+                book,
+                display_strategy,
+                print_strategy,
+                serialize_strategy
+            )
+
             return bp.serialize()
 
 
